@@ -1,0 +1,10 @@
+{
+  "name": "robago-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @robago/web dev",
+    "build": "pnpm --filter @robago/web build",
+    "lint": "pnpm --filter @robago/web lint"
+  }
+}
