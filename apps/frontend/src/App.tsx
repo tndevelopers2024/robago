@@ -4,6 +4,7 @@ import { queryClient } from "@/lib/query-client";
 import { router } from "@/routes";
 
 export function App() {
+  console.log("Testing preview environment");
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
