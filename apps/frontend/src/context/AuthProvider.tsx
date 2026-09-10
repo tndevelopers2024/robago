@@ -1,89 +1,107 @@
-import React, { useEffect, useState } from "react";
-import type { User } from "@/types";
-import { mockService } from "@/mocks/mock-service";
-import { onUnauthorized } from "@/lib/api-client";
+// src/context/AuthProvider.tsx
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { AuthContext } from "./AuthContext";
+import * as authApi from "@/api/auth";
+import { setAccessToken } from "@/lib/authToken";import { onForcedLogout } from "@/lib/axiosInstance";
+import queryClient from "@/lib/queryClient";
+import type { UserDTO } from "@robago/shared";
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+type AuthContextValue = {
+    isAuthenticated: boolean;
+    user: UserDTO | null;
+    isBootstrapping: boolean; // true during the initial silent-refresh attempt on app load
+    isPending: boolean;
+    login: (phoneNumber: string, passcode: string) => Promise<void>;
+    logout: () => Promise<void>;
+};
 
-  useEffect(() => {
-    // Initial session verification (simulating GET /api/v1/auth/me)
-    let mounted = true;
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-    async function checkAuth() {
-      try {
-        const sessionUser = await mockService.checkSession();
-        if (mounted) {
-          setUser(sessionUser);
-        }
-      } catch (err) {
-        console.error("Session check error", err);
-        if (mounted) {
-          setUser(null);
-        }
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
-    }
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    const navigate = useNavigate();
+    const [user, setUser] = useState<UserDTO | null>(null);
+    const [isBootstrapping, setIsBootstrapping] = useState(true);
+    const [isPending, setIsPending] = useState(false);
 
-    checkAuth();
+    // On first load there is no access token in memory (robago-prd.md §0/§4 — it's
+    // deliberately never persisted to storage), so re-establish a session via the
+    // httpOnly refresh cookie, then fetch the user. If that fails, the person is simply
+    // logged out — this is the expected path for "never logged in" as much as "session
+    // expired," so it fails silently rather than surfacing an error toast.
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const { accessToken } = await authApi.refreshSession();
+                if (cancelled) return;
+                setAccessToken(accessToken);
+                const me = await authApi.fetchMe();
+                if (cancelled) return;
+                setUser(me);
+            } catch {
+                if (!cancelled) setUser(null);
+            } finally {
+                if (!cancelled) setIsBootstrapping(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
-    // Subscribe to global 401 unauthorized events from Axios interceptor
-    const unsubscribe = onUnauthorized(() => {
-      setUser(null);
-      toast.error("Session expired. Please sign in again.");
-    });
+    useEffect(() => {
+        return onForcedLogout(() => {
+            setUser(null);
+            queryClient.clear();
+            navigate("/auth/login", { replace: true });
+        });
+    }, [navigate]);
 
-    return () => {
-      mounted = false;
-      unsubscribe();
-    };
-  }, []);
+    const value = useMemo<AuthContextValue>(
+        () => ({
+            isAuthenticated: Boolean(user),
+            user,
+            isBootstrapping,
+            isPending,
+            login: async (phoneNumber, passcode) => {
+                setIsPending(true);
+                try {
+                    const { user: loggedInUser, accessToken } = await authApi.login({
+                        phoneNumber,
+                        passcode,
+                    });
+                    setAccessToken(accessToken);
+                    setUser(loggedInUser);
+                    navigate("/", { replace: true });
+                } catch (err) {
+                    // robago-prd.md §8: deliberately generic message, matching the
+                    // backend's anti-enumeration choice (see services/auth.service.ts).
+                    toast.error("Invalid phone number or passcode");
+                    throw err;
+                } finally {
+                    setIsPending(false);
+                }
+            },
+            logout: async () => {
+                try {
+                    await authApi.logout();
+                } finally {
+                    setAccessToken(null);
+                    setUser(null);
+                    queryClient.clear();
+                    navigate("/auth/login", { replace: true });
+                }
+            },
+        }),
+        [user, isBootstrapping, isPending, navigate],
+    );
 
-  const login = async (phoneNumber: string, passcode: string): Promise<User> => {
-    setIsLoading(true);
-    try {
-      const loggedInUser = await mockService.login(phoneNumber, passcode);
-      setUser(loggedInUser);
-      toast.success(`Welcome back, ${loggedInUser.name}`);
-      return loggedInUser;
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Authentication failed";
-      toast.error(msg);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
 
-  const logout = async (): Promise<void> => {
-    setIsLoading(true);
-    try {
-      await mockService.logout();
-      setUser(null);
-      toast.info("Signed out successfully");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        isAuthenticated: !!user,
-        isAdmin: user?.role === "admin",
-        login,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
-}
+export const useAuth = () => {
+    const ctx = useContext(AuthContext);
+    if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+    return ctx;
+};

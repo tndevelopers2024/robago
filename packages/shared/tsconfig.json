@@ -1,0 +1,16 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "lib": ["ES2023"],
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "declaration": true,
+        "declarationMap": true,
+        "composite": true,
+        "tsBuildInfoFile": "./tsconfig.tsbuildinfo",
+        "noEmit": false
+    },
+    "include": ["src"]
+}

@@ -1,15 +1,23 @@
+// src/layouts/AppLayout.tsx
+import AppSidebar from "@/components/AppSidebar";
+import AppHeader from "@/components/app-header";
+import BottomNav from "@/components/layout/BottomNav";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
-import { AppNavbar } from "@/components/navigation/AppNavbar";
-import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
 
-export function AppLayout() {
-  return (
-    <div className="flex min-h-screen flex-col bg-slate-50/60">
-      <AppNavbar />
-      <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 max-w-7xl w-full mx-auto pb-24 md:pb-12">
-        <Outlet />
-      </main>
-      <MobileBottomNav />
-    </div>
-  );
-}
+const AppLayout = () => {
+    return (
+        <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset className="h-screen overflow-hidden bg-[#F8FAFC]">
+                <AppHeader />
+                <main className="min-h-0 flex-1 overflow-y-auto pb-16 md:pb-0">
+                    <Outlet />
+                </main>
+                <BottomNav />
+            </SidebarInset>
+        </SidebarProvider>
+    );
+};
+
+export default AppLayout;

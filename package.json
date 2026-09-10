@@ -1,10 +1,33 @@
 {
-  "name": "robago-monorepo",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "pnpm --filter @robago/web dev",
-    "build": "pnpm --filter @robago/web build",
-    "lint": "pnpm --filter @robago/web lint"
-  }
+    "name": "robago",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "engines": {
+        "node": ">=20",
+        "pnpm": ">=9"
+    },
+    "scripts": {
+        "dev": "pnpm --parallel --filter=./apps/* run dev",
+        "dev:backend": "pnpm --filter @robago/backend run dev",
+        "dev:frontend": "pnpm --filter @robago/frontend run dev",
+        "build": "pnpm --filter @robago/shared run build && pnpm --filter @robago/backend run build && pnpm --filter @robago/frontend run build",
+        "build:shared": "pnpm --filter @robago/shared run build",
+        "lint": "pnpm -r run lint",
+        "typecheck": "pnpm -r run typecheck",
+        "format": "prettier --write .",
+        "seed": "pnpm --filter @robago/backend run seed",
+        "prepare": "husky"
+    },
+    "lint-staged": {
+        "*.{ts,tsx,js,jsx,json,css,md}": [
+            "prettier --write"
+        ]
+    },
+    "devDependencies": {
+        "husky": "^9.1.7",
+        "lint-staged": "^17.4.1",
+        "prettier": "^3.9.6",
+        "typescript": "~6.0.2"
+    }
 }

@@ -1,0 +1,23 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+        "target": "es2023",
+        "lib": ["ES2023"],
+        "module": "esnext",
+        "moduleDetection": "force",
+        "moduleResolution": "bundler",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "verbatimModuleSyntax": true,
+        "isolatedModules": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true,
+        "noUncheckedIndexedAccess": true,
+        "erasableSyntaxOnly": true
+    }
+}

@@ -1,4 +1,8 @@
 node_modules
+dist
+.env
+.env.local
+*.tsbuildinfo
 accounts-January-26.xlsx
-robago-prd.md 
+robago-prd.md
 *.har

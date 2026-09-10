@@ -1,0 +1,17 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "lib": ["ES2023"],
+        "types": ["node"],
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "declaration": false,
+        "tsBuildInfoFile": "./tsconfig.tsbuildinfo",
+        "incremental": true,
+        "noEmit": false
+    },
+    "include": ["src"],
+    "references": [{ "path": "../../packages/shared" }]
+}
