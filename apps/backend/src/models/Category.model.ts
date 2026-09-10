@@ -1,12 +1,12 @@
 // src/models/Category.model.ts
 import { Schema, model, type InferSchemaType } from "mongoose";
-import { ProductType, TagColor } from "@robago/shared";
+import { ProductType } from "@robago/shared";
 
 const categorySchema = new Schema(
     {
         title: { type: String, required: true },
         description: { type: String, default: "" },
-        tagColor: { type: String, enum: Object.values(TagColor), required: true },
+        tagColor: { type: String, match: /^#[0-9a-fA-F]{6}$/, required: true },
         type: {
             type: String,
             enum: Object.values(ProductType),

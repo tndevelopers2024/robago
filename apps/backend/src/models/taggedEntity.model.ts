@@ -5,14 +5,14 @@
 // a real-world party (e.g. "S A IMPEX") can be both a Supplier and a ProductionUnit
 // at once, so merging them into one collection would make that impossible to represent.
 import { Schema, model, type InferSchemaType } from "mongoose";
-import { TagColor } from "@robago/shared";
+
 
 function taggedEntitySchema() {
     return new Schema(
         {
             name: { type: String, required: true },
             description: { type: String, default: "" },
-            tagColor: { type: String, enum: Object.values(TagColor), required: true },
+            tagColor: { type: String, match: /^#[0-9a-fA-F]{6}$/, required: true },
         },
         { timestamps: true },
     );

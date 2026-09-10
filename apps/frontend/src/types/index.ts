@@ -17,7 +17,7 @@ export interface ProductDTO {
     _id: string;
     name: string;
     description: string | null;
-    categoryId: string;
+    categoryId: string | CategoryDTO;
     unit: Unit;
     type: ProductType;
 }
@@ -32,7 +32,7 @@ export interface TaggedEntityDTO {
 export interface InventoryDTO {
     _id: string;
     productId: ProductDTO; // populated by the backend on list/detail
-    warehouseId: string;
+    warehouseId: string | TaggedEntityDTO;
     supplierId: string | null;
     location: string;
     price: number;
@@ -44,7 +44,16 @@ export interface InventoryDTO {
 
 export interface TransactionDTO {
     _id: string;
-    inventoryId: string;
+    inventoryId:
+        | string
+        | {
+              _id: string;
+              productId?: ProductDTO;
+              warehouseId?: TaggedEntityDTO | string;
+              location?: string;
+              price?: number;
+              quantity?: number;
+          };
     transactionType: TransactionType;
     quantity: number;
     producedBy: TaggedEntityDTO | null;

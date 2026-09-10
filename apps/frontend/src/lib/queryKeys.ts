@@ -3,6 +3,7 @@ export interface InventoryFilters {
     search?: string;
     warehouseId?: string;
     type?: string;
+    categoryId?: string;
 }
 export interface ProductFilters {
     categoryId?: string;

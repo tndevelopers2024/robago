@@ -48,7 +48,7 @@ export const TagColor = {
     Yellow: "#FFD580",
     Teal: "#99D6D0",
 } as const;
-export type TagColor = (typeof TagColor)[keyof typeof TagColor];
+export type TagColor = (typeof TagColor)[keyof typeof TagColor] | (string & {});
 
 /** Ordered list for rendering color-swatch pickers, so UI order is deterministic. */
 export const TAG_COLOR_OPTIONS: ReadonlyArray<{ label: string; value: TagColor }> = [

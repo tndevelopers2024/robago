@@ -23,12 +23,17 @@ interface ProductFormProps {
 
 export function ProductForm({ initial, onSubmit, onCancel }: ProductFormProps) {
     const { data: categories } = useCategoriesQuery();
+    const initialCategoryId =
+        typeof initial?.categoryId === "object" && initial.categoryId !== null
+            ? initial.categoryId._id
+            : (initial?.categoryId ?? "");
+
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(createProductSchema),
         defaultValues: {
             name: initial?.name ?? "",
             description: initial?.description ?? "",
-            categoryId: initial?.categoryId ?? "",
+            categoryId: initialCategoryId,
             unit: initial?.unit ?? Unit.Piece,
             type: initial?.type ?? ProductType.RawMaterial,
         },
@@ -40,7 +45,7 @@ export function ProductForm({ initial, onSubmit, onCancel }: ProductFormProps) {
                 onSubmit={form.handleSubmit(async (values) => {
                     // The resolver has already applied schema defaults by the time this runs, so
                     // this is a safe upcast from the input type to the output type.
-                    await onSubmit(values as CreateProductInput);
+                    await onSubmit(values as unknown as CreateProductInput);
                 })}
                 className="space-y-4"
             >

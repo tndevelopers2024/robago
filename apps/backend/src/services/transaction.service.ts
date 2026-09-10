@@ -17,7 +17,7 @@ export async function listRecentTransactions(limit = 20) {
     return Transaction.find()
         .sort({ timestamp: -1 })
         .limit(limit)
-        .populate({ path: "inventoryId", populate: { path: "productId" } })
+        .populate({ path: "inventoryId", populate: { path: "productId warehouseId" } })
         .populate("producedBy consumedBy");
 }
 

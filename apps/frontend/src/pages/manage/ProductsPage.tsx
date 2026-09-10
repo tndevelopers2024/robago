@@ -15,7 +15,7 @@ import {
     useUpdateProductMutation,
 } from "@/hooks/queries/useProductsQueries";
 import { useCategoriesQuery } from "@/hooks/queries/useCategoriesQueries";
-import type { ProductDTO } from "@/types";
+import type { CategoryDTO, ProductDTO } from "@/types";
 
 export default function ProductsPage() {
     const { data: products, isLoading } = useProductsQuery();
@@ -27,7 +27,10 @@ export default function ProductsPage() {
     const [createOpen, setCreateOpen] = useState(false);
     const [editing, setEditing] = useState<ProductDTO | null>(null);
 
-    const categoryTitle = (id: string) => categories?.find((c) => c._id === id)?.title ?? "—";
+    const categoryTitle = (cat: string | CategoryDTO) => {
+        if (typeof cat === "object" && cat !== null) return cat.title;
+        return categories?.find((c) => c._id === cat)?.title ?? "—";
+    };
 
     const columns: ColumnDef<ProductDTO>[] = [
         { accessorKey: "name", header: "Name" },

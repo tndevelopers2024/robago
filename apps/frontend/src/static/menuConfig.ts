@@ -12,7 +12,7 @@ export interface MenuItem {
 const menuItems: MenuItem[] = [
     { title: "Dashboard", url: "/", icon: LayoutDashboard, inBottomNav: true },
     { title: "Inventory", url: "/inventory", icon: Package, inBottomNav: true },
-    { title: "Alerts", url: "/inventory/alerts", icon: AlertTriangle },
+    { title: "Alerts", url: "/inventory/alerts", icon: AlertTriangle, inBottomNav: true },
     { title: "Manage", url: "/manage/categories", icon: Settings2, inBottomNav: true },
 ];
 

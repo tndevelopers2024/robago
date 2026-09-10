@@ -24,7 +24,7 @@ export const createInventorySchema = z.object({
         .max(10000, "Enter a price")
         .multipleOf(0.01, "Price must have at most 2 decimal places"),
     alertThreshold: z.number().int().min(0).optional(), // conditionally required — see below
-    quantity: z.number().int().min(0).default(0),
+    quantity: z.number().min(0).default(0),
     imgUrl: z.string().url().nullable().optional(),
 });
 export type CreateInventoryInput = z.infer<typeof createInventorySchema>;

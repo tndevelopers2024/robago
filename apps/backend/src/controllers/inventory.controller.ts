@@ -5,8 +5,8 @@ import * as inventoryService from "../services/inventory.service.js";
 import type { CreateInventoryInput, UpdateInventoryInput } from "@robago/shared";
 
 export const list = asyncHandler(async (req: Request, res: Response) => {
-    const { search, warehouseId, type } = req.query as Record<string, string | undefined>;
-    const inventory = await inventoryService.listInventory({ search, warehouseId, type });
+    const { search, warehouseId, type, categoryId } = req.query as Record<string, string | undefined>;
+    const inventory = await inventoryService.listInventory({ search, warehouseId, type, categoryId });
     res.status(200).json(inventory);
 });
 

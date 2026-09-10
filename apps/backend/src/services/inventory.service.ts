@@ -10,26 +10,31 @@ export async function listInventory(filter: {
     search?: string;
     warehouseId?: string;
     type?: string;
+    categoryId?: string;
 } = {}) {
     const query: Record<string, unknown> = {};
     if (filter.warehouseId) query.warehouseId = filter.warehouseId;
 
-    // `type` filters on the *product's* type, so resolve matching product ids first.
+    // `type`, `categoryId`, and `search` filter on the *product*, so resolve matching product ids first.
     let productIds: string[] | undefined;
-    if (filter.type || filter.search) {
+    if (filter.type || filter.search || filter.categoryId) {
         const productQuery: Record<string, unknown> = {};
         if (filter.type) productQuery.type = filter.type;
+        if (filter.categoryId) productQuery.categoryId = filter.categoryId;
         if (filter.search) productQuery.name = { $regex: filter.search, $options: "i" };
         const products = await Product.find(productQuery).select("_id");
         productIds = products.map((p) => String(p._id));
         query.productId = { $in: productIds };
     }
 
-    return Inventory.find(query).populate("productId").sort({ productId: 1 });
+    return Inventory.find(query)
+        .populate({ path: "productId", populate: { path: "categoryId" } })
+        .populate("warehouseId")
+        .sort({ productId: 1 });
 }
 
 export async function getInventoryById(id: string) {
-    const inventory = await Inventory.findById(id).populate("productId");
+    const inventory = await Inventory.findById(id).populate("productId warehouseId");
     if (!inventory) throw ApiError.notFound("Inventory item not found");
     const transactions = await Transaction.find({ inventoryId: id })
         .sort({ timestamp: -1 })
@@ -42,7 +47,7 @@ export async function getAlerts() {
         alertThreshold: { $ne: null },
         $expr: { $lt: ["$quantity", "$alertThreshold"] },
     })
-        .populate("productId")
+        .populate("productId warehouseId")
         .sort({ quantity: 1 });
 
     const rawMaterials = lowStock.filter(
@@ -64,10 +69,7 @@ export async function createInventory(input: CreateInventoryInput) {
         throw ApiError.badRequest("Validation failed", fieldErrors);
     }
 
-    // Finished products never carry an alert threshold, matching the legacy app's
-    // behavior (robago-prd.md §4.2 / the alertThreshold discrepancy noted in §5).
-    const alertThreshold =
-        product.type === ProductType.RawMaterial ? (input.alertThreshold ?? null) : null;
+    const alertThreshold = input.alertThreshold ?? null;
 
     return Inventory.create({ ...input, alertThreshold });
 }
@@ -93,8 +95,7 @@ export async function updateInventory(id: string, input: UpdateInventoryInput) {
         throw ApiError.badRequest("Validation failed", fieldErrors);
     }
 
-    const alertThreshold =
-        product.type === ProductType.RawMaterial ? (merged.alertThreshold ?? null) : null;
+    const alertThreshold = merged.alertThreshold ?? null;
 
     const updated = await Inventory.findByIdAndUpdate(
         id,
