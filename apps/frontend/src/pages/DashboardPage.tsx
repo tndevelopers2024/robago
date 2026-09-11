@@ -518,8 +518,8 @@ export default function DashboardPage() {
                                         inv?.productId?.name ?? (invId ? `Stock #${invId.slice(-4)}` : "—");
                                     const itemUnit = inv?.productId?.unit;
 
-                                    let unitOrGodown = "Godown";
-                                    let unitBadgeStyle = "bg-blue-50 text-[#1565C0] border-blue-200 font-semibold";
+                                    let unitOrGodown: string;
+                                    let unitBadgeStyle: string;
 
                                     if (txn.producedBy?.name) {
                                         unitOrGodown = txn.producedBy.name;
