@@ -2,14 +2,19 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
-import { leaveDemoIfServerIsUp } from "@/lib/backendProbe";
 
-// If an earlier session fell back to demo mode because the backend was off, and the backend
-// is running now, go back to live data before anything renders.
-void leaveDemoIfServerIsUp().finally(() => {
-    createRoot(document.getElementById("root")!).render(
-        <StrictMode>
-            <App />
-        </StrictMode>,
-    );
-});
+// Wipe any previous mock demo cache from localStorage so the frontend strictly uses live database data
+if (typeof window !== "undefined" && window.localStorage) {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith("robago_demo")) {
+            localStorage.removeItem(key);
+        }
+    }
+}
+
+createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+        <App />
+    </StrictMode>,
+);

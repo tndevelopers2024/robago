@@ -1,10 +1,12 @@
 // src/api/auth.ts
 import { axiosInstance } from "@/lib/axiosInstance";
+import { getRefreshToken } from "@/lib/authToken";
 import type { LoginInput, UserDTO as SharedUserDTO } from "@robago/shared";
 
 export interface LoginResponse {
     user: SharedUserDTO;
     accessToken: string;
+    refreshToken?: string;
 }
 
 export async function login(input: LoginInput): Promise<LoginResponse> {
@@ -21,7 +23,12 @@ export async function fetchMe(): Promise<SharedUserDTO> {
     return data;
 }
 
-export async function refreshSession(): Promise<{ accessToken: string }> {
-    const { data } = await axiosInstance.post<{ accessToken: string }>("/auth/refresh");
+export async function refreshSession(token?: string): Promise<{ accessToken: string; refreshToken?: string }> {
+    const rf = token || getRefreshToken();
+    const { data } = await axiosInstance.post<{ accessToken: string; refreshToken?: string }>(
+        "/auth/refresh",
+        rf ? { refreshToken: rf } : {},
+        rf ? { headers: { "x-refresh-token": rf } } : {},
+    );
     return data;
 }

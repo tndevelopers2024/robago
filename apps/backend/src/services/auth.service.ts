@@ -47,7 +47,7 @@ export async function login(input: LoginInput): Promise<{
     return { user: toUserDTO(user), accessToken, refreshToken };
 }
 
-export async function refresh(refreshToken: string): Promise<{ accessToken: string }> {
+export async function refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
     let payload;
     try {
         payload = verifyRefreshToken(refreshToken);
@@ -70,7 +70,7 @@ export async function refresh(refreshToken: string): Promise<{ accessToken: stri
         phoneNumber: user.phoneNumber,
         role: user.role as UserDTO["role"],
     });
-    return { accessToken };
+    return { accessToken, refreshToken };
 }
 
 export async function getMe(userId: string): Promise<UserDTO> {

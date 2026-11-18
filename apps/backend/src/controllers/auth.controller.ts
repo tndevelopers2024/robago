@@ -10,14 +10,19 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     const input = req.body as LoginInput;
     const { user, accessToken, refreshToken } = await authService.login(input);
     res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions());
-    res.status(200).json({ user, accessToken });
+    res.status(200).json({ user, accessToken, refreshToken });
 });
 
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
-    const token = (req.cookies as Record<string, string> | undefined)?.[REFRESH_COOKIE_NAME];
+    const token =
+        (req.cookies as Record<string, string> | undefined)?.[REFRESH_COOKIE_NAME] ||
+        (req.body as { refreshToken?: string } | undefined)?.refreshToken ||
+        (req.headers["x-refresh-token"] as string | undefined);
+
     if (!token) throw ApiError.unauthorized("No refresh token");
-    const { accessToken } = await authService.refresh(token);
-    res.status(200).json({ accessToken });
+    const { accessToken, refreshToken } = await authService.refresh(token);
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions());
+    res.status(200).json({ accessToken, refreshToken });
 });
 
 export const logout = asyncHandler(async (_req: Request, res: Response) => {

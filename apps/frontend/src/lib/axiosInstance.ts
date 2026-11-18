@@ -1,12 +1,24 @@
 // src/lib/axiosInstance.ts
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
-import { getAccessToken, setAccessToken } from "./authToken";
-import { mockAxiosAdapter, isDemoModeActive, setDemoModeActive } from "./mockAdapter";
+import {
+    getAccessToken,
+    setAccessToken,
+    getRefreshToken,
+    setRefreshToken,
+    clearAuthTokens,
+} from "./authToken";
 
-export { isDemoModeActive, setDemoModeActive };
+// Live REST API only: mock/demo mode is permanently disabled.
+export function isDemoModeActive(): boolean {
+    return false;
+}
+
+export function setDemoModeActive(_enabled: boolean): void {
+    // No-op: Real REST API only. Mock data & localStorage fallback disabled.
+}
 
 export const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1",
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:5001/api/v1",
     headers: {
         "Content-Type": "application/json",
     },
@@ -18,12 +30,6 @@ axiosInstance.interceptors.request.use((config) => {
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
-
-    // Intercept with mock adapter if standalone demo mode is active
-    if (isDemoModeActive()) {
-        config.adapter = mockAxiosAdapter;
-    }
-
     return config;
 });
 
@@ -35,7 +41,7 @@ export function onForcedLogout(listener: LogoutListener): () => void {
     return () => logoutListeners.delete(listener);
 }
 function broadcastForcedLogout() {
-    setAccessToken(null);
+    clearAuthTokens();
     logoutListeners.forEach((l) => l());
 }
 
@@ -45,10 +51,18 @@ let refreshPromise: Promise<string> | null = null;
 
 async function refreshAccessToken(): Promise<string> {
     if (!refreshPromise) {
+        const rf = getRefreshToken();
         refreshPromise = axiosInstance
-            .post<{ accessToken: string }>("/auth/refresh")
+            .post<{ accessToken: string; refreshToken?: string }>(
+                "/auth/refresh",
+                rf ? { refreshToken: rf } : {},
+                rf ? { headers: { "x-refresh-token": rf } } : {},
+            )
             .then((res) => {
                 setAccessToken(res.data.accessToken);
+                if (res.data.refreshToken) {
+                    setRefreshToken(res.data.refreshToken);
+                }
                 return res.data.accessToken;
             })
             .finally(() => {
@@ -62,25 +76,8 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
         const originalRequest = error.config as
-            | (InternalAxiosRequestConfig & { _retry?: boolean; _demoRetry?: boolean })
+            | (InternalAxiosRequestConfig & { _retry?: boolean })
             | undefined;
-
-        // Auto-activate demo mode if backend is offline / connection refused / network failure
-        const isNetworkFailure =
-            !error.response ||
-            error.code === "ERR_NETWORK" ||
-            error.message?.includes("Network Error") ||
-            (error.response && error.response.status >= 502);
-
-        if (isNetworkFailure && originalRequest && !originalRequest._demoRetry) {
-            console.warn(
-                "[axiosInstance] Backend unreachable / network failure. Activating Standalone Demo Mode fallback.",
-            );
-            setDemoModeActive(true);
-            originalRequest._demoRetry = true;
-            originalRequest.adapter = mockAxiosAdapter;
-            return axiosInstance(originalRequest);
-        }
 
         if (!originalRequest || error.response?.status !== 401) {
             return Promise.reject(error);

@@ -3,7 +3,13 @@ import { createContext, type ReactNode, useContext, useEffect, useMemo, useState
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import * as authApi from "@/api/auth";
-import { setAccessToken } from "@/lib/authToken";import { onForcedLogout } from "@/lib/axiosInstance";
+import {
+    getAccessToken,
+    setAccessToken,
+    setRefreshToken,
+    clearAuthTokens,
+} from "@/lib/authToken";
+import { onForcedLogout } from "@/lib/axiosInstance";
 import queryClient from "@/lib/queryClient";
 import { can as roleCan, type Permission, type UserDTO } from "@robago/shared";
 
@@ -26,23 +32,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isBootstrapping, setIsBootstrapping] = useState(true);
     const [isPending, setIsPending] = useState(false);
 
-    // On first load there is no access token in memory (robago-prd.md §0/§4 — it's
-    // deliberately never persisted to storage), so re-establish a session via the
-    // httpOnly refresh cookie, then fetch the user. If that fails, the person is simply
-    // logged out — this is the expected path for "never logged in" as much as "session
-    // expired," so it fails silently rather than surfacing an error toast.
+    // On app load or page refresh, restore the active session.
+    // 1. If an access token is already saved, use it directly to fetch the current user.
+    // 2. If missing or expired, attempt a silent token refresh (via httpOnly cookie or stored refresh token).
+    // 3. Only if both fail is the user considered logged out.
     useEffect(() => {
         let cancelled = false;
         (async () => {
+            const token = getAccessToken();
+            if (token) {
+                try {
+                    const me = await authApi.fetchMe();
+                    if (!cancelled) {
+                        setUser(me);
+                        setIsBootstrapping(false);
+                        return;
+                    }
+                } catch {
+                    // Access token may be expired; continue to silent refresh below.
+                }
+            }
+
             try {
-                const { accessToken } = await authApi.refreshSession();
+                const { accessToken, refreshToken } = await authApi.refreshSession();
                 if (cancelled) return;
                 setAccessToken(accessToken);
+                if (refreshToken) setRefreshToken(refreshToken);
                 const me = await authApi.fetchMe();
                 if (cancelled) return;
                 setUser(me);
             } catch {
-                if (!cancelled) setUser(null);
+                if (!cancelled) {
+                    clearAuthTokens();
+                    setUser(null);
+                }
             } finally {
                 if (!cancelled) setIsBootstrapping(false);
             }
@@ -54,6 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         return onForcedLogout(() => {
+            clearAuthTokens();
             setUser(null);
             queryClient.clear();
             navigate("/auth/login", { replace: true });
@@ -70,16 +94,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             login: async (phoneNumber, passcode) => {
                 setIsPending(true);
                 try {
-                    const { user: loggedInUser, accessToken } = await authApi.login({
+                    const { user: loggedInUser, accessToken, refreshToken } = await authApi.login({
                         phoneNumber,
                         passcode,
                     });
                     setAccessToken(accessToken);
+                    if (refreshToken) setRefreshToken(refreshToken);
                     setUser(loggedInUser);
                     navigate("/", { replace: true });
                 } catch (err) {
-                    // robago-prd.md §8: deliberately generic message, matching the
-                    // backend's anti-enumeration choice (see services/auth.service.ts).
                     toast.error("Invalid phone number or passcode");
                     throw err;
                 } finally {
@@ -90,7 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 try {
                     await authApi.logout();
                 } finally {
-                    setAccessToken(null);
+                    clearAuthTokens();
                     setUser(null);
                     queryClient.clear();
                     navigate("/auth/login", { replace: true });
@@ -105,6 +128,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
     const ctx = useContext(AuthContext);
-    if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+    if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
     return ctx;
 };

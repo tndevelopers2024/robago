@@ -15,7 +15,9 @@
         "seed:expenses": "tsx src/scripts/seedExpenses.ts",
         "seed:accounts": "tsx src/scripts/seedAccounts.ts",
         "seed:schools": "tsx src/scripts/seedSchools.ts",
+        "seed:all": "tsx src/scripts/seed.ts && tsx src/scripts/seedStaff.ts --force && tsx src/scripts/seedExpenses.ts --sample --force && tsx src/scripts/seedAccounts.ts && tsx src/scripts/seedSchools.ts",
         "migrate:roles": "tsx src/scripts/migrateRoles.ts",
+        "test:db": "tsx src/scripts/testDb.ts",
         "test": "vitest run"
     },
     "dependencies": {

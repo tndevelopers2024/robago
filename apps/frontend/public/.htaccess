@@ -1,0 +1,23 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Do not rewrite if the file or directory exists
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Route all other requests to index.html
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Disable directory listing and MultiViews
+Options -Indexes -MultiViews
+
+# Ensure correct MIME types for modern web assets
+<IfModule mod_mime.c>
+  AddType text/javascript .js .mjs
+  AddType text/css .css
+  AddType font/woff2 .woff2
+  AddType image/svg+xml .svg
+</IfModule>
