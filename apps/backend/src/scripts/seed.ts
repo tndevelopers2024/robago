@@ -32,14 +32,14 @@ async function seed() {
     const adminUser = await User.create({
         phoneNumber: "1234567890",
         name: "Admin User",
-        role: "admin",
+        role: "superadmin",
         passwordHash: passcodeHash,
         tokenVersion: 0,
     });
     await User.create({
         phoneNumber: "9500088697",
         name: "Default Admin",
-        role: "admin",
+        role: "superadmin",
         passwordHash: passcodeHash,
         tokenVersion: 0,
     });

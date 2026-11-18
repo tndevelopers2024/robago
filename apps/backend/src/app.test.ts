@@ -37,7 +37,7 @@ describe("app (DB-independent routes only)", () => {
         const { createApp } = await import("./app.js");
         const { signAccessToken } = await import("./utils/jwt.js");
         const app = createApp();
-        const token = signAccessToken({ sub: "u1", phoneNumber: "9500088697", role: "user" });
+        const token = signAccessToken({ sub: "u1", phoneNumber: "9500088697", role: "manager" });
         const res = await request(app)
             .post("/api/v1/transactions")
             .set("Authorization", `Bearer ${token}`)

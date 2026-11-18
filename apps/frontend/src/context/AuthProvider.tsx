@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import * as authApi from "@/api/auth";
 import { setAccessToken } from "@/lib/authToken";import { onForcedLogout } from "@/lib/axiosInstance";
 import queryClient from "@/lib/queryClient";
-import type { UserDTO } from "@robago/shared";
+import { can as roleCan, type Permission, type UserDTO } from "@robago/shared";
 
 type AuthContextValue = {
     isAuthenticated: boolean;
@@ -14,6 +14,8 @@ type AuthContextValue = {
     isPending: boolean;
     login: (phoneNumber: string, passcode: string) => Promise<void>;
     logout: () => Promise<void>;
+    /** Does the signed-in person's role include this permission? */
+    can: (permission: Permission) => boolean;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -64,6 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             user,
             isBootstrapping,
             isPending,
+            can: (permission) => roleCan(user?.role, permission),
             login: async (phoneNumber, passcode) => {
                 setIsPending(true);
                 try {

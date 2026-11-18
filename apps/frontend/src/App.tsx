@@ -10,7 +10,8 @@ function App() {
         <QueryClientProvider client={queryClient}>
             <RouterProvider router={router} />
             <Toaster position="top-right" theme="system" duration={5000} visibleToasts={5} closeButton richColors />
-            <ReactQueryDevtools initialIsOpen={false} />
+            {/* Dev-only helper; hidden on phones where its button would cover the bottom navigation. */}
+            {typeof window !== "undefined" && window.innerWidth >= 768 && <ReactQueryDevtools initialIsOpen={false} />}
         </QueryClientProvider>
     );
 }

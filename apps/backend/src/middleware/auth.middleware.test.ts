@@ -36,17 +36,17 @@ describe("requireAuth", () => {
     it("accepts a valid token and populates req.user", async () => {
         const { signAccessToken } = await import("../utils/jwt.js");
         const { requireAuth } = await import("./requireAuth.js");
-        const token = signAccessToken({ sub: "u1", phoneNumber: "9500088697", role: "admin" });
+        const token = signAccessToken({ sub: "u1", phoneNumber: "9500088697", role: "superadmin" });
         const { req, res, next } = mockReqRes({ authorization: `Bearer ${token}` });
         requireAuth(req, res, next);
         expect(next).toHaveBeenCalledWith(); // called with no error
-        expect(req.user).toEqual({ id: "u1", phoneNumber: "9500088697", role: "admin" });
+        expect(req.user).toEqual({ id: "u1", phoneNumber: "9500088697", role: "superadmin" });
     });
 
     it("rejects a token signed with the wrong secret", async () => {
         const jwt = (await import("jsonwebtoken")).default;
         const { requireAuth } = await import("./requireAuth.js");
-        const forged = jwt.sign({ sub: "u1", phoneNumber: "1", role: "admin" }, "wrong");
+        const forged = jwt.sign({ sub: "u1", phoneNumber: "1", role: "superadmin" }, "wrong");
         const { req, res, next } = mockReqRes({ authorization: `Bearer ${forged}` });
         requireAuth(req, res, next);
         const err = next.mock.calls[0]![0];
@@ -58,23 +58,23 @@ describe("requireRole", () => {
     it("rejects when req.user is missing (requireAuth not run first)", async () => {
         const { requireRole } = await import("./requireRole.js");
         const { req, res, next } = mockReqRes();
-        requireRole("admin" as never)(req, res, next);
+        requireRole("superadmin" as never)(req, res, next);
         expect(next.mock.calls[0]![0].statusCode).toBe(401);
     });
 
     it("rejects a 'user' role from an admin-only route", async () => {
         const { requireRole } = await import("./requireRole.js");
         const { req, res, next } = mockReqRes();
-        req.user = { id: "u1", phoneNumber: "1", role: "user" as never };
-        requireRole("admin" as never)(req, res, next);
+        req.user = { id: "u1", phoneNumber: "1", role: "manager" as never };
+        requireRole("superadmin" as never)(req, res, next);
         expect(next.mock.calls[0]![0].statusCode).toBe(403);
     });
 
     it("allows an 'admin' role through an admin-only route", async () => {
         const { requireRole } = await import("./requireRole.js");
         const { req, res, next } = mockReqRes();
-        req.user = { id: "u1", phoneNumber: "1", role: "admin" as never };
-        requireRole("admin" as never)(req, res, next);
+        req.user = { id: "u1", phoneNumber: "1", role: "superadmin" as never };
+        requireRole("superadmin" as never)(req, res, next);
         expect(next).toHaveBeenCalledWith();
     });
 });

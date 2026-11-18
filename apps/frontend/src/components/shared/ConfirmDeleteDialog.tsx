@@ -9,13 +9,17 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { Permission } from "@robago/shared";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthProvider";
 
 interface ConfirmDeleteDialogProps {
     trigger: ReactNode;
     title: string;
     description?: string;
     onConfirm: () => Promise<unknown>;
+    /** Who may delete — the button is simply not shown to anyone else. Defaults to deleting catalogue items. */
+    permission?: Permission;
 }
 
 /** The backend surfaces robago-prd.md §8's exact dependency-block messages (e.g. "Can't
@@ -27,9 +31,13 @@ export function ConfirmDeleteDialog({
     title,
     description = "This action cannot be undone.",
     onConfirm,
+    permission = Permission.CatalogDelete,
 }: ConfirmDeleteDialogProps) {
+    const { can } = useAuth();
     const [open, setOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    if (!can(permission)) return null;
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>

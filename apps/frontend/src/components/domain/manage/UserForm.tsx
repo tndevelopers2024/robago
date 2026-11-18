@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
     createUserSchema,
     updateUserSchema,
+    ROLE_LABEL,
     UserRole,
     type CreateUserInput,
     type UpdateUserInput,
@@ -43,7 +44,7 @@ export function UserForm({ initial, onSubmit, onCancel }: UserFormProps) {
         defaultValues: {
             phoneNumber: initial?.phoneNumber ?? "",
             name: initial?.name ?? "",
-            role: initial?.role ?? UserRole.User,
+            role: initial?.role ?? UserRole.Manager,
             passcode: "",
         },
     });
@@ -84,8 +85,8 @@ export function UserForm({ initial, onSubmit, onCancel }: UserFormProps) {
                     label="Role"
                     required
                     options={[
-                        { value: UserRole.User, label: "User" },
-                        { value: UserRole.Admin, label: "Admin" },
+                        { value: UserRole.Manager, label: `${ROLE_LABEL.manager} — inventory only` },
+                        { value: UserRole.SuperAdmin, label: `${ROLE_LABEL.superadmin} — full access` },
                     ]}
                 />
                 <InputField<UserFormValues>

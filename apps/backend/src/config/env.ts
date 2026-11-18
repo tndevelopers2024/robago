@@ -12,6 +12,15 @@ const envSchema = z.object({
     JWT_REFRESH_EXPIRES_IN: z.string().default("30d"),
     CORS_ORIGIN: z.string().default("http://localhost:5173"),
     COOKIE_DOMAIN: z.string().optional(),
+    // Email reminders (optional — without SMTP_HOST the app still works; email reminders just say they aren't set up).
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.coerce.number().int().default(587),
+    SMTP_SECURE: z.enum(["true", "false"]).default("false"),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASS: z.string().optional(),
+    EMAIL_FROM: z.string().optional(), // e.g. "Robago Accounts <accounts@robago.com>"
+    EMAIL_REPLY_TO: z.string().optional(),
+    COMPANY_NAME: z.string().default("Robago"),
 });
 
 // Parsed once at import time — any process that imports this module fails fast with a

@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/shared/DataTable";
 import ConfirmDeleteDialog from "@/components/shared/ConfirmDeleteDialog";
+import { Permission, roleLabel } from "@robago/shared";
 import UserForm from "@/components/domain/manage/UserForm";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,8 +33,8 @@ export default function UsersPage() {
             accessorKey: "role",
             header: "Role",
             cell: ({ row }) => (
-                <Badge variant={row.original.role === "admin" ? "default" : "secondary"}>
-                    {row.original.role}
+                <Badge variant={row.original.role === "superadmin" ? "default" : "secondary"}>
+                    {roleLabel(row.original.role)}
                 </Badge>
             ),
         },
@@ -46,6 +47,7 @@ export default function UsersPage() {
                         <Pencil className="size-4" />
                     </Button>
                     <ConfirmDeleteDialog
+                        permission={Permission.UsersManage}
                         trigger={
                             <Button variant="ghost" size="icon-sm">
                                 <Trash2 className="size-4 text-red-600" />

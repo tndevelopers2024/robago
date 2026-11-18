@@ -72,7 +72,7 @@ function AlertSection({
                                     >
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-2">
-                                                <span className="font-semibold text-slate-900 group-hover:text-[#1565C0] transition-colors">
+                                                <span className="font-semibold text-slate-900 group-hover:text-primary transition-colors">
                                                     {item.productId?.name ?? "—"}
                                                 </span>
                                                 <span className="text-xs text-slate-400">
@@ -102,7 +102,7 @@ function AlertSection({
                                             >
                                                 {item.quantity} / {item.alertThreshold} {unit} threshold
                                             </Badge>
-                                            <ArrowRight className="size-4 text-slate-400 group-hover:text-[#1565C0] transition-colors shrink-0" />
+                                            <ArrowRight className="size-4 text-slate-400 group-hover:text-primary transition-colors shrink-0" />
                                         </div>
                                     </Link>
                                 </li>

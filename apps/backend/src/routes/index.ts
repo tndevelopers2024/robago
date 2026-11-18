@@ -6,6 +6,10 @@ import productRoutes from "./product.routes.js";
 import inventoryRoutes from "./inventory.routes.js";
 import transactionRoutes from "./transaction.routes.js";
 import userRoutes from "./user.routes.js";
+import staffRoutes from "./staff.routes.js";
+import expenseRoutes from "./expense.routes.js";
+import accountsRoutes from "./accounts.routes.js";
+import crmRoutes from "./crm.routes.js";
 import { createTaggedEntityRouter } from "./taggedEntity.routes.js";
 import {
     warehouseService,
@@ -29,6 +33,10 @@ router.use("/products", productRoutes);
 router.use("/inventory", inventoryRoutes);
 router.use("/transactions", transactionRoutes);
 router.use("/users", userRoutes);
+router.use("/staff", staffRoutes);
+router.use("/expenses", expenseRoutes);
+router.use("/accounts", accountsRoutes);
+router.use("/crm", crmRoutes);
 router.use(
     "/warehouses",
     createTaggedEntityRouter(warehouseService, createWarehouseSchema, updateWarehouseSchema),

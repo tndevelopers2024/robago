@@ -2,16 +2,16 @@
 import { Router } from "express";
 import * as productController from "../controllers/product.controller.js";
 import { requireAuth } from "../middleware/requireAuth.js";
-import { requireRole } from "../middleware/requireRole.js";
+import { requirePermission } from "../middleware/requirePermission.js";
 import { validateBody } from "../middleware/validate.js";
-import { createProductSchema, updateProductSchema, UserRole } from "@robago/shared";
+import { createProductSchema, updateProductSchema, Permission } from "@robago/shared";
 
 const router = Router();
 router.use(requireAuth);
 
 router.get("/", productController.list);
-router.post("/", requireRole(UserRole.Admin), validateBody(createProductSchema), productController.create);
-router.patch("/:id", requireRole(UserRole.Admin), validateBody(updateProductSchema), productController.update);
-router.delete("/:id", requireRole(UserRole.Admin), productController.remove);
+router.post("/", requirePermission(Permission.CatalogManage), validateBody(createProductSchema), productController.create);
+router.patch("/:id", requirePermission(Permission.CatalogManage), validateBody(updateProductSchema), productController.update);
+router.delete("/:id", requirePermission(Permission.CatalogDelete), productController.remove);
 
 export default router;

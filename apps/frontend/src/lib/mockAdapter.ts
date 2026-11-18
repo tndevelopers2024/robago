@@ -30,11 +30,19 @@ import {
     isDemoAuthenticated,
     setDemoAuthenticated,
 } from "./mockData";
+import { handleStaffMock } from "./staff/mockStaff";
+import { handleExpenseMock } from "./expenses/mockExpenses";
+import { handleAccountsMock } from "./accounts/mockAccounts";
+
+/** Demo mode that can't be switched off from the UI (env flag, or the hosted Vercel demo). */
+export function isDemoForced(): boolean {
+    if (typeof window === "undefined") return false;
+    return import.meta.env.VITE_DEMO_MODE === "true" || window.location.hostname.includes("vercel.app");
+}
 
 export function isDemoModeActive(): boolean {
     if (typeof window === "undefined") return false;
-    if (import.meta.env.VITE_DEMO_MODE === "true") return true;
-    if (window.location.hostname.includes("vercel.app")) return true;
+    if (isDemoForced()) return true;
     return localStorage.getItem("robago_demo_mode") === "true";
 }
 
@@ -67,7 +75,7 @@ function createErrorResponse(status: number, message: string, config: InternalAx
     error.isAxiosError = true;
     error.config = config;
     error.response = {
-        data: { message },
+        data: { message, error: message },
         status,
         statusText: status === 401 ? "Unauthorized" : status === 404 ? "Not Found" : "Bad Request",
         headers: {},
@@ -711,6 +719,31 @@ export async function mockAxiosAdapter(
             return createSuccessResponse(updated, config);
         }
         return createErrorResponse(404, "Transaction not found", config);
+    }
+
+    // Staff (employees, weekly advances, attendance)
+    const staff = handleStaffMock(method, path, params, body);
+    if (staff) {
+        if (staff.status >= 400) return createErrorResponse(staff.status, staff.error ?? "Request failed", config);
+        return createSuccessResponse(staff.data ?? null, config);
+    }
+
+    // Expenses (heads, dated entries, monthly totals)
+    const expenses = handleExpenseMock(method, path, params, body);
+    if (expenses) {
+        if (expenses.status >= 400) return createErrorResponse(expenses.status, expenses.error ?? "Request failed", config);
+        return createSuccessResponse(expenses.data ?? null, config);
+    }
+
+    // Accounts (creditors, debtors, ledger, activity log, reminders)
+    const accounts = handleAccountsMock(method, path, params, body);
+    if (accounts) {
+        if (accounts.status >= 400) {
+            const err = (await createErrorResponse(accounts.status, accounts.error ?? "Request failed", config).catch((e) => e)) as { response?: { data: unknown } };
+            if (err.response && accounts.fieldErrors) (err.response.data as Record<string, unknown>).fieldErrors = accounts.fieldErrors;
+            return Promise.reject(err);
+        }
+        return createSuccessResponse(accounts.data ?? null, config);
     }
 
     // Fallback for any unhandled GET/POST/etc

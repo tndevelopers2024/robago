@@ -116,7 +116,7 @@ export default function InventoryDetailPage() {
             <div className="flex items-center justify-between">
                 <Link
                     to="/inventory"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#1565C0] hover:text-[#0D47A1] transition-colors"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
                 >
                     <ArrowLeft className="size-4" /> Back to Inventory
                 </Link>
@@ -167,7 +167,7 @@ export default function InventoryDetailPage() {
                         productType={inventory.productId.type}
                         currentAvailableQty={inventory.quantity}
                         trigger={
-                            <Button className="bg-[#1565C0] hover:bg-[#0D47A1] shadow-xs">
+                            <Button className="bg-primary hover:bg-primary/90 shadow-xs">
                                 <Plus className="size-4 mr-1.5" /> Log Transaction
                             </Button>
                         }
@@ -201,7 +201,7 @@ export default function InventoryDetailPage() {
                             <dt className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                                 Total Valuation
                             </dt>
-                            <dd className="mt-1 text-2xl font-bold text-[#1565C0]">
+                            <dd className="mt-1 text-2xl font-bold text-primary">
                                 {formatINR(inventory.price * inventory.quantity)}
                             </dd>
                         </div>
@@ -260,7 +260,7 @@ export default function InventoryDetailPage() {
                                     onClick={() => setTypeFilter(pill)}
                                     className={`px-3 py-1 text-xs rounded-full transition-all cursor-pointer ${
                                         isSelected
-                                            ? "bg-[#1565C0] text-white shadow-xs font-semibold"
+                                            ? "bg-primary text-white shadow-xs font-semibold"
                                             : "bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium"
                                     }`}
                                 >

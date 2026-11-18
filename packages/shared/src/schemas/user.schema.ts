@@ -11,7 +11,7 @@ export const createUserSchema = z.object({
         .trim()
         .regex(/^\d{7,15}$/, "Enter a valid phone number"),
     name: z.string().trim().min(1, "Name is required"),
-    role: userRoleSchema.default(UserRole.User),
+    role: userRoleSchema.default(UserRole.Manager),
     passcode: z.string().min(4, "Passcode must be at least 4 characters"),
     fcmToken: z.string().nullable().optional(),
 });

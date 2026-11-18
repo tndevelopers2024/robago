@@ -11,6 +11,11 @@
         "typecheck": "tsc --noEmit",
         "lint": "eslint .",
         "seed": "tsx src/scripts/seed.ts",
+        "seed:staff": "tsx src/scripts/seedStaff.ts",
+        "seed:expenses": "tsx src/scripts/seedExpenses.ts",
+        "seed:accounts": "tsx src/scripts/seedAccounts.ts",
+        "seed:schools": "tsx src/scripts/seedSchools.ts",
+        "migrate:roles": "tsx src/scripts/migrateRoles.ts",
         "test": "vitest run"
     },
     "dependencies": {
@@ -22,6 +27,7 @@
         "express": "^5.1.0",
         "jsonwebtoken": "^9.0.2",
         "mongoose": "^8.9.5",
+        "nodemailer": "^10.6.0",
         "zod": "^4.5.4"
     },
     "devDependencies": {
@@ -31,6 +37,7 @@
         "@types/express": "^5.0.0",
         "@types/jsonwebtoken": "^9.0.7",
         "@types/node": "^24.13.3",
+        "@types/nodemailer": "^8.0.2",
         "@types/supertest": "^6.0.2",
         "eslint": "^10.9.0",
         "globals": "^17.11.0",

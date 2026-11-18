@@ -2,10 +2,10 @@
 import { Router } from "express";
 import type { ZodType } from "zod";
 import { requireAuth } from "../middleware/requireAuth.js";
-import { requireRole } from "../middleware/requireRole.js";
+import { requirePermission } from "../middleware/requirePermission.js";
 import { validateBody } from "../middleware/validate.js";
 import { createTaggedEntityController } from "../controllers/taggedEntity.controller.js";
-import { UserRole } from "@robago/shared";
+import { Permission } from "@robago/shared";
 
 interface TaggedEntityServiceLike<T> {
     list(): Promise<unknown>;
@@ -24,9 +24,9 @@ export function createTaggedEntityRouter<T>(
     router.use(requireAuth);
 
     router.get("/", controller.list);
-    router.post("/", requireRole(UserRole.Admin), validateBody(createSchema), controller.create);
-    router.patch("/:id", requireRole(UserRole.Admin), validateBody(updateSchema), controller.update);
-    router.delete("/:id", requireRole(UserRole.Admin), controller.remove);
+    router.post("/", requirePermission(Permission.CatalogManage), validateBody(createSchema), controller.create);
+    router.patch("/:id", requirePermission(Permission.CatalogManage), validateBody(updateSchema), controller.update);
+    router.delete("/:id", requirePermission(Permission.CatalogDelete), controller.remove);
 
     return router;
 }

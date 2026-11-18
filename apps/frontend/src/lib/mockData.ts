@@ -13,14 +13,14 @@ export const MOCK_ADMIN_USER: UserDTO = {
     _id: "u1",
     phoneNumber: "1234567890",
     name: "Admin User",
-    role: "admin",
+    role: "superadmin",
 };
 
 export const MOCK_DEFAULT_ADMIN: UserDTO = {
     _id: "u2",
     phoneNumber: "9500088697",
     name: "Default Admin",
-    role: "admin",
+    role: "superadmin",
 };
 
 // 1. Warehouses

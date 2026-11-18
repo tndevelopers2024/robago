@@ -2,12 +2,12 @@
 import { Router } from "express";
 import * as userController from "../controllers/user.controller.js";
 import { requireAuth } from "../middleware/requireAuth.js";
-import { requireRole } from "../middleware/requireRole.js";
+import { requirePermission } from "../middleware/requirePermission.js";
 import { validateBody } from "../middleware/validate.js";
-import { createUserSchema, updateUserSchema, UserRole } from "@robago/shared";
+import { createUserSchema, updateUserSchema, Permission } from "@robago/shared";
 
 const router = Router();
-router.use(requireAuth, requireRole(UserRole.Admin));
+router.use(requireAuth, requirePermission(Permission.UsersManage));
 
 router.get("/", userController.list);
 router.post("/", validateBody(createUserSchema), userController.create);

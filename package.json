@@ -18,6 +18,10 @@
         "typecheck": "pnpm --filter @robago/shared run build && pnpm -r run typecheck",
         "format": "prettier --write .",
         "seed": "pnpm --filter @robago/backend run seed",
+        "seed:staff": "pnpm --filter @robago/backend run seed:staff",
+        "seed:expenses": "pnpm --filter @robago/backend run seed:expenses",
+        "seed:accounts": "pnpm --filter @robago/backend run seed:accounts",
+        "migrate:roles": "pnpm --filter @robago/backend run migrate:roles",
         "prepare": "husky"
     },
     "lint-staged": {

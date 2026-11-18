@@ -1,45 +1,44 @@
 import { NavLink, useLocation } from "react-router-dom";
+import { useAuth } from "@/context/AuthProvider";
 import { cn } from "@/lib/utils";
-import menuItems from "@/static/menuConfig";
-
-function isItemActive(itemUrl: string, pathname: string): boolean {
-    if (itemUrl === "/inventory/alerts") {
-        return pathname.startsWith("/inventory/alerts");
-    }
-    if (itemUrl === "/inventory") {
-        return (
-            pathname === "/inventory" ||
-            (pathname.startsWith("/inventory/") && !pathname.startsWith("/inventory/alerts"))
-        );
-    }
-    if (itemUrl === "/") {
-        return pathname === "/";
-    }
-    return pathname === itemUrl || pathname.startsWith(itemUrl + "/");
-}
+import menuItems, { isItemActive } from "@/static/menuConfig";
 
 export function BottomNav() {
     const location = useLocation();
-    const items = menuItems.filter((item) => item.inBottomNav);
+    const { can } = useAuth();
+    const items = menuItems.filter((item) => item.inBottomNav && (!item.permission || can(item.permission)));
 
     return (
-        <nav className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-slate-200 bg-white/95 backdrop-blur-sm md:hidden">
-            {items.map((item) => {
-                const active = isItemActive(item.url, location.pathname);
-                return (
-                    <NavLink
-                        key={item.title}
-                        to={item.url}
-                        className={cn(
-                            "flex flex-1 flex-col items-center gap-1 py-2 text-xs font-medium transition-colors",
-                            active ? "text-[#1565C0]" : "text-slate-500",
-                        )}
-                    >
-                        <item.icon className="size-5" />
-                        <span>{item.title}</span>
-                    </NavLink>
-                );
-            })}
+        <nav
+            aria-label="Primary"
+            className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/90 backdrop-blur-xl md:hidden"
+        >
+            <ul className="mx-auto flex h-16 max-w-lg items-stretch px-1">
+                {items.map((item) => {
+                    const active = isItemActive(item, location.pathname);
+                    return (
+                        <li key={item.title} className="flex-1">
+                            <NavLink
+                                to={item.url}
+                                className={cn(
+                                    "relative flex h-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors",
+                                    active ? "text-primary" : "text-muted-foreground active:text-foreground",
+                                )}
+                            >
+                                <span
+                                    className={cn(
+                                        "flex h-7 w-12 items-center justify-center rounded-full transition-all",
+                                        active && "bg-primary/10",
+                                    )}
+                                >
+                                    <item.icon className="size-5" strokeWidth={active ? 2.4 : 2} />
+                                </span>
+                                <span>{item.title}</span>
+                            </NavLink>
+                        </li>
+                    );
+                })}
+            </ul>
         </nav>
     );
 }

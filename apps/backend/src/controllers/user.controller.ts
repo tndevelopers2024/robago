@@ -22,6 +22,6 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const remove = asyncHandler(async (req: Request, res: Response) => {
-    await userService.deleteUser(req.params.phoneNumber as string);
+    await userService.deleteUser(req.params.phoneNumber as string, req.user?.id);
     res.status(204).send();
 });

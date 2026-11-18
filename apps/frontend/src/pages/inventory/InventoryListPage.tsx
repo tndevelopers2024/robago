@@ -86,7 +86,7 @@ export default function InventoryListPage() {
                             />
                         )}
                         <div>
-                            <div className="font-bold text-slate-900 hover:text-[#1565C0] transition-colors">
+                            <div className="font-bold text-slate-900 hover:text-primary transition-colors">
                                 {row.original.productId?.name ?? "—"}
                             </div>
                             <div className="text-xs text-slate-500">
@@ -140,7 +140,7 @@ export default function InventoryListPage() {
                         className={
                             isRaw
                                 ? "bg-amber-50 text-amber-800 border border-amber-200 font-medium"
-                                : "bg-blue-50 text-[#1565C0] border border-blue-200 font-medium"
+                                : "bg-accent text-primary border border-primary/20 font-medium"
                         }
                     >
                         {isRaw ? "Raw Material" : "Finished Bag"}

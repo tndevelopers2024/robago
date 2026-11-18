@@ -133,7 +133,7 @@ export function CreateStockDialog({ trigger, defaultWarehouseId }: CreateStockDi
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 {trigger ?? (
-                    <Button className="bg-[#1565C0] hover:bg-[#0D47A1] shadow-xs">
+                    <Button className="bg-primary hover:bg-primary/90 shadow-xs">
                         <Plus className="size-4 mr-1.5" /> + New Stock SKU
                     </Button>
                 )}
@@ -141,7 +141,7 @@ export function CreateStockDialog({ trigger, defaultWarehouseId }: CreateStockDi
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <div className="flex items-center gap-2">
-                        <div className="flex size-9 items-center justify-center rounded-lg bg-blue-50 text-[#1565C0]">
+                        <div className="flex size-9 items-center justify-center rounded-lg bg-accent text-primary">
                             <PackagePlus className="size-5" />
                         </div>
                         <div>
@@ -381,7 +381,7 @@ export function CreateStockDialog({ trigger, defaultWarehouseId }: CreateStockDi
                             <Button
                                 type="submit"
                                 disabled={form.formState.isSubmitting || createMutation.isPending}
-                                className="bg-[#1565C0] hover:bg-[#0D47A1]"
+                                className="bg-primary hover:bg-primary/90"
                             >
                                 {createMutation.isPending ? "Creating…" : "Create Stock Entry"}
                             </Button>

@@ -12,11 +12,11 @@ beforeAll(() => {
 describe("jwt utils", () => {
     it("signs and verifies an access token round-trip", async () => {
         const { signAccessToken, verifyAccessToken } = await import("./jwt.js");
-        const token = signAccessToken({ sub: "abc123", phoneNumber: "9500088697", role: "admin" });
+        const token = signAccessToken({ sub: "abc123", phoneNumber: "9500088697", role: "superadmin" });
         const payload = verifyAccessToken(token);
         expect(payload.sub).toBe("abc123");
         expect(payload.phoneNumber).toBe("9500088697");
-        expect(payload.role).toBe("admin");
+        expect(payload.role).toBe("superadmin");
     });
 
     it("signs and verifies a refresh token round-trip", async () => {
@@ -30,14 +30,14 @@ describe("jwt utils", () => {
     it("rejects a token signed with a different secret", async () => {
         const jwt = (await import("jsonwebtoken")).default;
         const { verifyAccessToken } = await import("./jwt.js");
-        const forged = jwt.sign({ sub: "x", phoneNumber: "1", role: "admin" }, "wrong-secret");
+        const forged = jwt.sign({ sub: "x", phoneNumber: "1", role: "superadmin" }, "wrong-secret");
         expect(() => verifyAccessToken(forged)).toThrow();
     });
 
     it("rejects an expired access token", async () => {
         vi.useFakeTimers();
         const { signAccessToken, verifyAccessToken } = await import("./jwt.js");
-        const token = signAccessToken({ sub: "abc123", phoneNumber: "1", role: "user" });
+        const token = signAccessToken({ sub: "abc123", phoneNumber: "1", role: "manager" });
         vi.advanceTimersByTime(1000 * 60 * 60); // well past the 15m default expiry
         expect(() => verifyAccessToken(token)).toThrow();
         vi.useRealTimers();

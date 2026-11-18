@@ -186,7 +186,7 @@ export function TransactionDialog({
                                             className={cn(
                                                 "flex flex-col items-center justify-center p-2.5 rounded-lg border text-center transition-all cursor-pointer",
                                                 isSelected
-                                                    ? "border-[#1565C0] bg-blue-50/60 text-[#1565C0] ring-1 ring-[#1565C0] font-semibold"
+                                                    ? "border-primary bg-accent/60 text-primary ring-1 ring-primary font-semibold"
                                                     : "border-slate-200 hover:bg-slate-50 text-slate-700",
                                             )}
                                         >
@@ -194,7 +194,7 @@ export function TransactionDialog({
                                                 className={cn(
                                                     "size-4 mb-1",
                                                     isSelected
-                                                        ? "text-[#1565C0]"
+                                                        ? "text-primary"
                                                         : opt.isOutward
                                                           ? "text-amber-600"
                                                           : "text-emerald-600",
@@ -292,7 +292,7 @@ export function TransactionDialog({
                             <Button
                                 type="submit"
                                 disabled={form.formState.isSubmitting || isOverdraft}
-                                className="bg-[#1565C0] hover:bg-[#0D47A1]"
+                                className="bg-primary hover:bg-primary/90"
                             >
                                 Log Transaction
                             </Button>

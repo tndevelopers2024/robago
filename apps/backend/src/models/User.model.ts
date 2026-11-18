@@ -10,7 +10,7 @@ const userSchema = new Schema(
             type: String,
             enum: Object.values(UserRole),
             required: true,
-            default: UserRole.User,
+            default: UserRole.Manager,
         },
         passwordHash: { type: String, required: true, select: false },
         fcmToken: { type: String, default: null },
